@@ -13,11 +13,13 @@ public class ShipBuilder : MonoBehaviour {
 	Vector2 snappedPosition;
 	Vector2 snapSpotOffset;
 	Vector2 grabOffset;
+	List<GameObject> floatingObjects;
 	public float snapRadius;
 
 	void Start () 
 	{
 		visibleSnap = false;
+		floatingObjects = new List<GameObject>();
 	}
 	
 	// Update is called once per frame
@@ -28,24 +30,40 @@ public class ShipBuilder : MonoBehaviour {
 
 		if(grabbedObject != null) // if we have a grabbed object
 		{
+			if(!grabbedObject.GetComponent<ShipPart>().snapped)
 			grabbedObject.transform.position = new Vector3(mWorldPos.x, mWorldPos.y, grabbedObject.transform.position.z) + new Vector3(grabOffset.x, grabOffset.y,0);
-			if(grabbedObject.GetComponent<ShipPart>().snapped) // if the object has been snapped into place keep it there;
+			else // if the object has been snapped into place keep it there;
 			{
-				grabbedObject.transform.localPosition = new Vector3(snappedPosition.x,snappedPosition.y, grabbedObject.transform.localPosition.z);		
+				//grabbedObject.transform.localPosition = new Vector3(snappedPosition.x,snappedPosition.y, grabbedObject.transform.localPosition.z);		
 				
 				Vector3 worldPos = grabbedObject.transform.position;
 				float dist = Vector2.Distance(((Vector2) worldPos)  , (Vector2) mWorldPos);
-			
+				
 				if(dist > snapRadius * 6)// if mouse gets far enough away, unsnap
 				{
-					grabbedObject.GetComponent<ShipPart>().snapped = false;	
+					grabbedObject.GetComponent<ShipPart>().snapped = false;	 
 					grabbedObject.transform.parent = null;	
-				} 
+				}
+
+				if(Input.GetMouseButtonDown(0))
+				{
+					if(grabbedObject.GetComponent<ShipPart>().snapped)
+					{
+						grabbedObject.GetComponent<ShipPart>().SetOnShip(true);
+						grabbedObject = null;
+					}
+					else
+					{
+						floatingObjects.Add(grabbedObject);
+						grabbedObject = null;
+					} 
+				}
+				
 			}
 
 
-		}
 
+		}
 
 
 
@@ -110,12 +128,10 @@ public class ShipBuilder : MonoBehaviour {
 		float pieceAngle = piece.eulerAngles.z;
 		float maxAng = Mathf.Max(body.eulerAngles.z, piece.eulerAngles.z);
 		float minAng = Mathf.Min(body.eulerAngles.z, piece.eulerAngles.z);
-		float combinedAngles = pieceAngle - bodyAngle;
-	
+		float combinedAngles = (-bodyAngle);
+		
 		float dist = ((Vector2)piece.localPosition).magnitude;
-		//Vector3 diff = body.position - piece.position;
 		Vector2 vec = (Angle2Vector(combinedAngles) * dist);
-		Debug.Log(bodyAngle - pieceAngle);
 		piece.parent.position =  body.position + new Vector3(vec.x, vec.y,0); 
 		piece.parent.GetComponent<ShipPart>().snapped = true;
 		piece.parent.parent = ship.transform;

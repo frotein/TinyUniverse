@@ -30,12 +30,12 @@ public class SnapPoint : MonoBehaviour {
 
 	public void OnTriggerEnter2D(Collider2D col)
 	{
-		if(!part.OnShip() && !part.snapped)
+		
+		if(!part.OnShip() && !part.snapped && col.transform.GetComponent<SnapPoint>() != null)
 		{
 			connectedSnap = col.transform;
 			builder.ConnectPoints(connectedSnap, transform);	
 			part.snapped = true;
-
 		}
 	}
 

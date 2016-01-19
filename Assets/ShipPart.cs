@@ -8,6 +8,7 @@ public class ShipPart : MonoBehaviour {
 	public int length;
 	public int scale = 1;
 	public bool snapped;
+	public Transform snappedTo;
 	bool onShip;
 	Collider2D collider;
 	bool overlapping;
@@ -38,7 +39,6 @@ public class ShipPart : MonoBehaviour {
 
 	public bool OnShip() { return onShip; }
 
-
 	public bool Overlapping() { return overlapping; }
 	
 	public void OnCollisionStay2D(Collision2D col)
@@ -49,5 +49,8 @@ public class ShipPart : MonoBehaviour {
 	{
 		overlapping = false;
 	}
+
+	public void SetOnShip(bool os) { onShip = os; }
+
 
 }
