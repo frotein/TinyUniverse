@@ -8,6 +8,7 @@ public class SnapPoint : MonoBehaviour {
 	ShipBuilder builder;
 	ShipPart part;
 	public bool connected;
+	public bool connectedToParent;
 	public Transform corner1, corner2;
 	// Use this for initialization
 	void Start () 

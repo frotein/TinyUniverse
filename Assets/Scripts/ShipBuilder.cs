@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class ShipBuilder : MonoBehaviour {
 
 	public GameObject ship;
+	public bool placedThisFrame;
 	GameObject grabbedObject;
 	Vector3 mWorldPos; // Mouse world position;
 	Vector3 prevMWorldPos; // the mouse world position from the previouse frame;
@@ -27,6 +28,7 @@ public class ShipBuilder : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
+		placedThisFrame = false;
 		// Mouse world position assigning per frame
 		mWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -46,10 +48,11 @@ public class ShipBuilder : MonoBehaviour {
 					grabbedObject.transform.eulerAngles = new Vector3(grabbedObject.transform.eulerAngles.x,
 																	  grabbedObject.transform.eulerAngles.y, storedAngle); 
 					grabbedObject.transform.parent = null;	
-					connectedSP1.connected = false;
+					grabbedObject.GetComponent<ShipPart>().Disconnect();
+					/*connectedSP1.connected = false;
 					connectedSP2.connected = false;
 					connectedSP1 = null;
-					connectedSP2 = null;
+					connectedSP2 = null;*/
 				}
 
 				if(Input.GetMouseButtonDown(0))
@@ -57,6 +60,7 @@ public class ShipBuilder : MonoBehaviour {
 					if(grabbedObject.GetComponent<ShipPart>().snapped)
 					{
 						grabbedObject.GetComponent<ShipPart>().SetOnShip(true);
+						placedThisFrame = true;
 						grabbedObject = null;
 					}
 					else
@@ -78,11 +82,6 @@ public class ShipBuilder : MonoBehaviour {
 
 		
 
-	}
-
-	bool GrabbedOverlappingSnapPoint()
-	{
-		return false;	
 	}
 
 	// Toggles the visiblity for the Snap points on the ship based on the bool input
@@ -125,6 +124,7 @@ public class ShipBuilder : MonoBehaviour {
 	{
 		SnapPoint bodySP = body.GetComponent<SnapPoint>();
 		SnapPoint pieceSP = piece.GetComponent<SnapPoint>();
+		pieceSP.connectedToParent = true;
 		bodySP.connected = true;
 		pieceSP.connected = true;
 		storedAngle = piece.parent.eulerAngles.z;

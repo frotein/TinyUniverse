@@ -102,13 +102,29 @@ public class ShipPart : MonoBehaviour {
 	{
 		if(collider.OverlapPoint((Vector2) Camera.main.ScreenToWorldPoint(Input.mousePosition)) )
 		{
-			if(Input.GetMouseButtonDown(0) && !builder.hasGrabbed())
+			if(Input.GetMouseButtonDown(0) && !builder.hasGrabbed() && !builder.placedThisFrame)
 			{
-				builder.AssignGrabbed(gameObject, false);
+				Disconnect();
 			}
 		}
 	}
-
+	public void Disconnect()
+	{
+		builder.AssignGrabbed(gameObject, true);
+		SnapPoint  sp = GetConnectedToParent();
+		if(sp != null)
+		{
+			sp.connected = false;
+			sp.ConnectedSnap().GetComponent<SnapPoint>().connected = false;
+			sp.connectedToParent = false;
+		}
+		onShip = false;
+		ShipPart[] connectedParts = transform.GetComponentsInChildren<ShipPart>();
+		foreach(ShipPart part in connectedParts)
+		{
+			part.SetOnShip(false);
+		}
+	}
 	public Collider2D[] OverlappingColliders()
 	{
 		return null;
@@ -135,6 +151,17 @@ public class ShipPart : MonoBehaviour {
 	}
 
 	public void SetOnShip(bool os) { onShip = os; }
+
+	public SnapPoint GetConnectedToParent() // gets the snap point connected to the parent object, can be null
+	{
+		SnapPoint[] snaps = transform.GetComponentsInChildren<SnapPoint>();
+		foreach(SnapPoint snap in snaps)
+		{
+			if(snap.connectedToParent) return snap;
+		}
+
+		return null;
+	}
 
 
 }
