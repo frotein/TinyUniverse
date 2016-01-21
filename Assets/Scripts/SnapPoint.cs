@@ -7,35 +7,26 @@ public class SnapPoint : MonoBehaviour {
 	SpriteRenderer sprite; 
 	ShipBuilder builder;
 	ShipPart part;
-	bool connected;
+	public bool connected;
+	public Transform corner1, corner2;
 	// Use this for initialization
 	void Start () 
 	{
-		sprite = transform.GetComponent<SpriteRenderer>();
 		builder = Camera.main.GetComponent<ShipBuilder>();
 		part = transform.parent.GetComponent<ShipPart>();
+		connected = false;
 	}
 	
-	// Toggle whether sprite is displaying or not
-	public void ToggleSprite(bool on)
-	{
-		if(sprite == null)
-		sprite = transform.GetComponent<SpriteRenderer>();
-
-		if(connected)
-		sprite.enabled = false;
-		else
-		sprite.enabled = on;
-	}
-
 	public void OnTriggerEnter2D(Collider2D col)
 	{
-		
-		if(!part.OnShip() && !part.snapped && col.transform.GetComponent<SnapPoint>() != null)
+		if(!part.OnShip() && !part.snapped && col.transform.GetComponent<SnapPoint>() != null && !connected)
 		{
-			connectedSnap = col.transform;
-			builder.ConnectPoints(connectedSnap, transform);	
-			part.snapped = true;
+			if(!col.transform.GetComponent<SnapPoint>().connected)
+			{
+				connectedSnap = col.transform;
+				builder.ConnectPoints(connectedSnap, transform);	
+				part.snapped = true;
+			}
 		}
 	}
 
