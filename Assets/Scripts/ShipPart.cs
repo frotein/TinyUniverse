@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class ShipPart : MonoBehaviour {
 
+	public ShipBuilder builder;
 	public bool startingPart;
 	public GameObject snapPointPrefab;
 	public int length;
@@ -14,6 +15,7 @@ public class ShipPart : MonoBehaviour {
 	Collider2D collider;
 	bool overlapping;
 	List<Transform> corners;
+	List<SnapPoint> snapPoints;
 	// Use this for initialization
 	void Start () 
 	{
@@ -98,7 +100,13 @@ public class ShipPart : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-	
+		if(collider.OverlapPoint((Vector2) Camera.main.ScreenToWorldPoint(Input.mousePosition)) )
+		{
+			if(Input.GetMouseButtonDown(0) && !builder.hasGrabbed())
+			{
+				builder.AssignGrabbed(gameObject, false);
+			}
+		}
 	}
 
 	public Collider2D[] OverlappingColliders()
@@ -118,6 +126,8 @@ public class ShipPart : MonoBehaviour {
 	public void OnCollisionStay2D(Collision2D col)
 	{
 		overlapping = true;
+		
+		
 	}
 	public void OnCollisionExit2D(Collision2D col)
 	{

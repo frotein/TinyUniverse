@@ -23,6 +23,7 @@ public class Part_Button : MonoBehaviour {
 	{
 		
 		GameObject spawnedObject = GameObject.Instantiate(part);
+		spawnedObject.GetComponent<ShipPart>().builder = builder;
 		builder.AssignGrabbed(spawnedObject, true);
 	}
 }

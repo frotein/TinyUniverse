@@ -64,17 +64,13 @@ public class ShipBuilder : MonoBehaviour {
 						floatingObjects.Add(grabbedObject);
 						grabbedObject = null;
 					} 
-				}
-
-				if(Input.GetMouseButtonDown(1) && !grabbedObject.GetComponent<ShipPart>().snapped)
-				{
-					grabbedObject.transform.eulerAngles += new Vector3(0,0,90);
-				}
-				
+				}			
 			}
 
-
-
+			if(Input.GetMouseButtonDown(1) && !grabbedObject.GetComponent<ShipPart>().snapped)
+			{
+				grabbedObject.transform.eulerAngles -= new Vector3(0,0,90);
+			}
 		}
 
 
@@ -131,10 +127,10 @@ public class ShipBuilder : MonoBehaviour {
 		SnapPoint pieceSP = piece.GetComponent<SnapPoint>();
 		bodySP.connected = true;
 		pieceSP.connected = true;
-		
+		storedAngle = piece.parent.eulerAngles.z;
 		connectedSP1 = bodySP;
 		connectedSP2 = pieceSP;
-		Debug.Log(connectedSP2);
+
 		Vector2 offset = ((Vector2) pieceSP.corner1.position) - ((Vector2) bodySP.corner2.position);
 		piece.parent.position-= new Vector3(offset.x, offset.y,0);
 		
@@ -144,6 +140,8 @@ public class ShipBuilder : MonoBehaviour {
 		Transform pieceP = piece.parent;
 		piece.parent = null;
 		pieceP.parent = piece;
+
+
 		
 		
 		piece.eulerAngles += new Vector3(0,0,-angle);
@@ -179,5 +177,10 @@ public class ShipBuilder : MonoBehaviour {
 		float v2y = Ya - Yc;
 
 		return (Mathf.Atan2(v1x, v1y) - Mathf.Atan2(v2x, v2y)) * Mathf.Rad2Deg;
+	}
+
+	public bool hasGrabbed()
+	{
+		return grabbedObject != null;
 	}
 }
