@@ -25,12 +25,18 @@ public class SnapPoint : MonoBehaviour {
 			if(!col.transform.GetComponent<SnapPoint>().connected)
 			{
 				connectedSnap = col.transform;
-				builder.ConnectPoints(connectedSnap, transform);	
+				builder.SnapPoints(connectedSnap, transform);	
 				part.snapped = true;
 			}
 		}
 	}
+	public void Disconnect()
+	{
+		Debug.Log("Disconnecting " +  gameObject.name + " in " + gameObject.transform.parent.gameObject.name);
+		connected = false;
+		connectedToParent = false;
 
+	}
 	public void OnTriggerExit2D(Collider2D col)
 	{
 		//Debug.Log("exiting");

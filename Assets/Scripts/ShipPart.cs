@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class ShipPart : MonoBehaviour {
 
 	public ShipBuilder builder;
+	public bool noSnapBottom;
 	public bool startingPart;
 	public GameObject snapPointPrefab;
 	public int length;
@@ -85,11 +86,17 @@ public class ShipPart : MonoBehaviour {
 			if(lnth < 1.01f && lnth > 0.99f)
 			{
 				Vector2 midPoint = (((Vector2) corner.position) - ((Vector2) nextCorner.position)) *.5f + ((Vector2) nextCorner.position);
-				GameObject snapPoint = GameObject.Instantiate(snapPointPrefab);
-				snapPoint.transform.position = new Vector3(midPoint.x, midPoint.y, transform.position.z);
-				snapPoint.GetComponent<SnapPoint>().corner1 = corner;
-				snapPoint.GetComponent<SnapPoint>().corner2 = nextCorner;
-				snapPoint.transform.parent = transform;
+				Vector2 diff = midPoint - (Vector2)transform.position;
+				 // if you dont want to have a bottom snap point, dont create one
+				if(!(Mathf.Abs(diff.x) < 0.1f && midPoint.y < transform.position.y && noSnapBottom))
+				{
+					GameObject snapPoint = GameObject.Instantiate(snapPointPrefab);
+					snapPoint.name = "Snap Point " + j;
+					snapPoint.transform.position = new Vector3(midPoint.x, midPoint.y, transform.position.z);
+					snapPoint.GetComponent<SnapPoint>().corner1 = corner;
+					snapPoint.GetComponent<SnapPoint>().corner2 = nextCorner;
+					snapPoint.transform.parent = transform;
+				}
 			}
 
 			  
@@ -102,27 +109,33 @@ public class ShipPart : MonoBehaviour {
 	{
 		if(collider.OverlapPoint((Vector2) Camera.main.ScreenToWorldPoint(Input.mousePosition)) )
 		{
+			
 			if(Input.GetMouseButtonDown(0) && !builder.hasGrabbed() && !builder.placedThisFrame)
 			{
 				Disconnect();
 			}
 		}
 	}
+
 	public void Disconnect()
 	{
 		builder.AssignGrabbed(gameObject, true);
-		SnapPoint  sp = GetConnectedToParent();
-		if(sp != null)
+		if(!startingPart)
 		{
-			sp.connected = false;
-			sp.ConnectedSnap().GetComponent<SnapPoint>().connected = false;
-			sp.connectedToParent = false;
-		}
-		onShip = false;
-		ShipPart[] connectedParts = transform.GetComponentsInChildren<ShipPart>();
-		foreach(ShipPart part in connectedParts)
-		{
-			part.SetOnShip(false);
+			gameObject.transform.parent = null;
+
+			SnapPoint  sp = GetConnectedToParent();
+			if(sp != null)
+			{				
+				sp.Disconnect();
+				sp.ConnectedSnap().GetComponent<SnapPoint>().Disconnect();				
+			}
+			onShip = false;
+			ShipPart[] connectedParts = transform.GetComponentsInChildren<ShipPart>();
+			foreach(ShipPart part in connectedParts)
+			{
+				part.SetOnShip(false);
+			}
 		}
 	}
 	public Collider2D[] OverlappingColliders()

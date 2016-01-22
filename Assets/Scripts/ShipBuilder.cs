@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class ShipBuilder : MonoBehaviour {
 
 	public GameObject ship;
-	public bool placedThisFrame;
-	GameObject grabbedObject;
+	public bool placedThisFrame, grabbedThisFrame;
+	public GameObject grabbedObject;
 	Vector3 mWorldPos; // Mouse world position;
 	Vector3 prevMWorldPos; // the mouse world position from the previouse frame;
 	// Use this for initialization
@@ -35,7 +35,18 @@ public class ShipBuilder : MonoBehaviour {
 		if(grabbedObject != null) // if we have a grabbed object
 		{
 			if(!grabbedObject.GetComponent<ShipPart>().snapped)
-			grabbedObject.transform.position = new Vector3(mWorldPos.x, mWorldPos.y, grabbedObject.transform.position.z) + new Vector3(grabOffset.x, grabOffset.y,0);
+			{
+				grabbedObject.transform.position = new Vector3(mWorldPos.x, mWorldPos.y, grabbedObject.transform.position.z) + new Vector3(grabOffset.x, grabOffset.y,0);
+				
+				// if you click when an object is not snapped to a surface, leave it floating their
+				if(Input.GetMouseButtonDown(0) && !grabbedThisFrame) 
+				{
+					grabbedObject.transform.parent = Camera.main.transform;
+					floatingObjects.Add(grabbedObject);
+					grabbedObject = null;
+					placedThisFrame = true;
+				} 
+			}
 			else // if the object has been snapped into place keep it there;
 			{
 				
@@ -48,26 +59,21 @@ public class ShipBuilder : MonoBehaviour {
 					grabbedObject.transform.eulerAngles = new Vector3(grabbedObject.transform.eulerAngles.x,
 																	  grabbedObject.transform.eulerAngles.y, storedAngle); 
 					grabbedObject.transform.parent = null;	
-					grabbedObject.GetComponent<ShipPart>().Disconnect();
-					/*connectedSP1.connected = false;
-					connectedSP2.connected = false;
-					connectedSP1 = null;
-					connectedSP2 = null;*/
+					//grabbedObject.GetComponent<ShipPart>().Disconnect();
 				}
 
 				if(Input.GetMouseButtonDown(0))
 				{
-					if(grabbedObject.GetComponent<ShipPart>().snapped)
+					if(grabbedObject.GetComponent<ShipPart>().snapped) // if the piece is snapped and you click again, connect the points
 					{
 						grabbedObject.GetComponent<ShipPart>().SetOnShip(true);
+						connectedSP1.connected = true;
+						connectedSP2.connected = true;
+						connectedSP2.connectedToParent = true;
 						placedThisFrame = true;
 						grabbedObject = null;
 					}
-					else
-					{
-						floatingObjects.Add(grabbedObject);
-						grabbedObject = null;
-					} 
+					
 				}			
 			}
 
@@ -76,12 +82,7 @@ public class ShipBuilder : MonoBehaviour {
 				grabbedObject.transform.eulerAngles -= new Vector3(0,0,90);
 			}
 		}
-
-
-
-
-		
-
+		grabbedThisFrame = false;
 	}
 
 	// Toggles the visiblity for the Snap points on the ship based on the bool input
@@ -111,7 +112,7 @@ public class ShipBuilder : MonoBehaviour {
 	public void AssignGrabbed(GameObject go, bool fromButton)
 	{
 		grabbedObject = go;
-				
+		grabbedThisFrame = true;
 		if(fromButton)
 			grabbedObject.transform.position = new Vector3(mWorldPos.x, mWorldPos.y, grabbedObject.transform.position.z);
 
@@ -120,17 +121,13 @@ public class ShipBuilder : MonoBehaviour {
 		ToggleSnapPointsVisiblility(true);
 	}
 
-	public void ConnectPoints(Transform body, Transform piece)
+	public void SnapPoints(Transform body, Transform piece)
 	{
 		SnapPoint bodySP = body.GetComponent<SnapPoint>();
 		SnapPoint pieceSP = piece.GetComponent<SnapPoint>();
-		pieceSP.connectedToParent = true;
-		bodySP.connected = true;
-		pieceSP.connected = true;
 		storedAngle = piece.parent.eulerAngles.z;
 		connectedSP1 = bodySP;
 		connectedSP2 = pieceSP;
-
 		Vector2 offset = ((Vector2) pieceSP.corner1.position) - ((Vector2) bodySP.corner2.position);
 		piece.parent.position-= new Vector3(offset.x, offset.y,0);
 		
