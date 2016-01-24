@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Part_Button : MonoBehaviour {
 
-	public string name; 
+	public string myName; 
 	public GameObject part;
 	public bool onShip;
 	ShipBuilder builder;

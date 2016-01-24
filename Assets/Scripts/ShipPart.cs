@@ -13,7 +13,7 @@ public class ShipPart : MonoBehaviour {
 	public bool snapped;
 	public Transform snappedTo;
 	bool onShip;
-	Collider2D collider;
+	Collider2D myCollider;
 	bool overlapping;
 	List<Transform> corners;
 	List<SnapPoint> snapPoints;
@@ -23,7 +23,7 @@ public class ShipPart : MonoBehaviour {
 		snapped = false;
 		overlapping = false;
 		onShip = startingPart;
-		collider = transform.GetComponent<Collider2D>();
+		myCollider = transform.GetComponent<Collider2D>();
 		BoxCollider2D box = transform.GetComponent<BoxCollider2D>();
 		corners = new List<Transform>();
 		if(box != null)
@@ -107,9 +107,8 @@ public class ShipPart : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		if(collider.OverlapPoint((Vector2) Camera.main.ScreenToWorldPoint(Input.mousePosition)) )
+		if(myCollider.OverlapPoint((Vector2) Camera.main.ScreenToWorldPoint(Input.mousePosition)) && !builder.assigningActions)
 		{
-			
 			if(Input.GetMouseButtonDown(0) && !builder.hasGrabbed() && !builder.placedThisFrame)
 			{
 				Disconnect();

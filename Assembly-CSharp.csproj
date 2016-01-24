@@ -177,12 +177,15 @@
      <Compile Include="Assets\FarseerUnity\FSUserDataComponent.cs" />
      <Compile Include="Assets\FarseerUnity\FSWorldComponent.cs" />
      <Compile Include="Assets\FarseerUnity\Support Files\Test_iOS\TestII.cs" />
+     <Compile Include="Assets\Scripts\CustomAction.cs" />
+     <Compile Include="Assets\Scripts\EngineActions.cs" />
      <Compile Include="Assets\Scripts\OrbitAround.cs" />
      <Compile Include="Assets\Scripts\Part_Button.cs" />
      <Compile Include="Assets\Scripts\PlanetController.cs" />
      <Compile Include="Assets\Scripts\ShipBuilder.cs" />
      <Compile Include="Assets\Scripts\ShipPart.cs" />
      <Compile Include="Assets\Scripts\SnapPoint.cs" />
+     <Compile Include="Assets\Scripts\Spaceship.cs" />
      <Compile Include="Assets\SpaceGravity2D\Demo\Scripts\CameraMovement.cs" />
      <Compile Include="Assets\SpaceGravity2D\Demo\Scripts\CameraScrollSlider.cs" />
      <Compile Include="Assets\SpaceGravity2D\Demo\Scripts\CollisionsDebug.cs" />
@@ -210,7 +213,6 @@
      <Compile Include="Assets\SpaceGravity2D\Scripts\PredictionSystemTarget.cs" />
      <Compile Include="Assets\SpaceGravity2D\Scripts\SimulationControl.cs" />
      <Compile Include="Assets\SpaceGravity2D\Scripts\SphereOfInfluence.cs" />
-     <Compile Include="Assets\Spaceship.cs" />
      <Compile Include="Assets\SpriteSlicer2D\Scripts\SpriteSlicer2D.cs" />
      <None Include="Assets\SpaceGravity2D\version_history.txt" />
      <None Include="Assets\FarseerUnity\Base\FarseerDebugViewUnity\FDView.shader" />
