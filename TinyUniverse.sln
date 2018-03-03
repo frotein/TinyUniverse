@@ -1,9 +1,9 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
-Project("{ABD98F31-1BED-4142-62F2-824A70B0B60E}") = "TinyUniverse", "Assembly-CSharp.csproj", "{089D85EF-284D-34A6-1DD6-E0358F28C0B5}"
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyUniverse", "Assembly-CSharp.csproj", "{089D85EF-284D-34A6-1DD6-E0358F28C0B5}"
 EndProject
-Project("{ABD98F31-1BED-4142-62F2-824A70B0B60E}") = "TinyUniverse", "Assembly-CSharp-Editor.csproj", "{9B0130FC-164D-AFDE-0A7E-4C1254790F70}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyUniverse", "Assembly-CSharp-Editor.csproj", "{9B0130FC-164D-AFDE-0A7E-4C1254790F70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

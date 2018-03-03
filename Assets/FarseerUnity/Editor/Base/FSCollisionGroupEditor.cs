@@ -102,7 +102,7 @@ public class FSCollisionGroupEditor : Editor
 		if(changed)
 		{
 			EditorUtility.SetDirty(target0);
-			EditorApplication.SaveAssets();
+			AssetDatabase.SaveAssets();
 			AssetDatabase.SaveAssets();
 			//Debug.Log("collision group is dirty");
 			AssetDatabase.Refresh();

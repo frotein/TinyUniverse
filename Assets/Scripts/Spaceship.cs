@@ -10,6 +10,7 @@ public class Spaceship : MonoBehaviour {
 	Rigidbody2D body;
 	public CustomAction[] actions;
 	public float turningForce;
+	bool onPlanet;
 	// Starts when turned on
 	void Start () 
 	{
@@ -27,7 +28,19 @@ public class Spaceship : MonoBehaviour {
 		}
 
 		Controls();
+		//UpdateGravity();
 	}
+
+	/*public void UpdateGravity()
+	{
+		if (!onPlanet)
+		{
+			float dist = Vector2.Distance(transform.position, startingPlanet.transform.position);
+			float force = (startingPlanet.GetComponent<Rigidbody2D>().mass) / (dist * dist);
+			Vector2 dir = startingPlanet.transform.position - transform.position;
+			body.AddForce(dir * force);
+		}
+	}*/
 	public void Controls()
 	{
 		// Temporary hard coded controls
@@ -56,10 +69,12 @@ public class Spaceship : MonoBehaviour {
 		transform.parent = null;
 		body = gameObject.AddComponent<Rigidbody2D>();
 		body.mass = mass;
+		body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 		cBody = gameObject.AddComponent<CelestialBody>();
 		cBody.IsDrawOrbit = false;
 		cBody.Attractor = startingPlanet;
 		cBody.RelativeVelocity= startingPlanet.RelativeVelocity;
+		cBody.personalTimeScale = 10f;
 		shipCam = Camera.main;
 		//shipCam.transform.parent = transform;
 		//shipCam.transform.localPosition = new Vector3(0,0,shipCam.transform.localPosition.z); 
@@ -69,6 +84,16 @@ public class Spaceship : MonoBehaviour {
 	public void OnCollisionStay2D(Collision2D col)
 	{
 		//body.velocity = (body.velocity - startingPlanet.RelativeVelocity) * 0.7f + startingPlanet.RelativeVelocity;
-		body.AddForce((body.velocity - startingPlanet.RelativeVelocity) * 0.7f + startingPlanet.RelativeVelocity);	
+		body.AddForce((body.velocity - startingPlanet.RelativeVelocity) * 0.7f + startingPlanet.RelativeVelocity);
+		onPlanet = true;
 	}
+
+
+	public void OnCollisionExit2D(Collision2D col)
+	{
+		//body.velocity = (body.velocity - startingPlanet.RelativeVelocity) * 0.7f + startingPlanet.RelativeVelocity;
+		//body.AddForce((body.velocity - startingPlanet.RelativeVelocity) * 0.7f + startingPlanet.RelativeVelocity);
+		onPlanet = false;
+	}
+
 }

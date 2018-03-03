@@ -362,7 +362,7 @@ namespace SpaceGravity2D.Inspector {
 				}
 			}
 
-			if (eventType == EventType.mouseDrag && _draggingObject != null) {
+			if (eventType == EventType.MouseDrag && _draggingObject != null) {
 				if (_event.button == 0) {
 					Vector2 point = new Vector2();
 					if (GetMousePointOnXYPlane(ref point)) {
@@ -379,7 +379,7 @@ namespace SpaceGravity2D.Inspector {
 				}
 			}
 
-			if (eventType == EventType.mouseUp || eventType == EventType.mouseMove) {
+			if (eventType == EventType.MouseUp || eventType == EventType.MouseMove) {
 				if (_draggingObject != null) {
 					if (_event.button == 0) {
 						EditorUtility.SetDirty(_draggingObject);

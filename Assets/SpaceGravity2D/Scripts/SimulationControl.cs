@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 
 namespace SpaceGravity2D {
 
@@ -110,6 +112,13 @@ namespace SpaceGravity2D {
 		/// </summary>
 		public bool drawLinesToAttractors;
 
+		List<Vector3> startPositions = new List<Vector3>();
+		List<Vector3> startVelocities = new List<Vector3>();
+		List<Vector3> relativePos = new List<Vector3>();
+		List<Vector3> lastPositions = new List<Vector3>();
+		List<Vector3> path;
+
+		bool pathCalculating;
 		void OnEnable() {
 			//Singleton:
 			if (instance && instance != this) {
@@ -128,10 +137,152 @@ namespace SpaceGravity2D {
 			GetCentralAttractor();
 		}
 
-		void FixedUpdate() {
+		void FixedUpdate()
+		{
+			
 			SimulationStep(Time.deltaTime * TimeScale);
 		}
+		public void DisplayPath(float time, CelestialBody tracking, LineRenderer rend)
+		{
+			GetStartingPositions();
+			List<Vector3> path = SimulateForTime(time, tracking);
 
+			ResetToStartPos();
+			rend.positionCount = path.Count;
+			rend.SetPositions(path.ToArray());
+			if (tracking.Attractor != null)
+			{
+				rend.transform.parent = tracking.Attractor.transform;
+				rend.transform.localPosition = Vector3.zero;
+				rend.useWorldSpace = false;
+			}
+
+		}
+
+		public void DisplayPathOverTime(float totalTime, float perFrameTime, CelestialBody tracking, LineRenderer rend)
+		{
+			if(!pathCalculating)
+			StartCoroutine ( SimulateForTimeCo(totalTime, tracking, perFrameTime, rend));
+		}
+		void GetStartingPositions()
+		{
+			startPositions.Clear();
+			startVelocities.Clear();
+			relativePos.Clear();
+			lastPositions.Clear();
+			foreach (CelestialBody body in _bodies)
+			{
+				startPositions.Add(body.transform.position);
+				//	Debug.Log(body.transform.position);
+				startVelocities.Add(body.Velocity);
+				relativePos.Add(body.RelativePosition);
+				lastPositions.Add(body.LastPosition);
+			}
+		}
+		
+		public List<Vector3> SimulateForTime(float runtime, CelestialBody tracking)
+		{
+			
+			
+			List<Vector3> trackingL = new List<Vector3>();
+			
+			float time = 0;
+
+			while (time < runtime)
+			{
+				time += Time.deltaTime;
+				SimulationStep(Time.deltaTime);
+				Vector3 pos = tracking.transform.position;
+				//if (tracking.Attractor != null)
+				//	pos = tracking.Attractor.transform.InverseTransformPoint(pos);
+				
+				trackingL.Add(pos);
+
+			}
+			int i = 0;
+
+			
+
+			return trackingL;
+		}
+		
+		public IEnumerator SimulateForTimeCo(float runtime, CelestialBody tracking, float timePerFrame, LineRenderer rend)
+		{
+
+			if (tracking.Attractor != null)
+			{
+				rend.transform.parent = tracking.Attractor.transform;
+				rend.transform.localPosition = Vector3.zero;
+				rend.transform.localScale = Vector3.one;
+				rend.startWidth = tracking.Attractor.transform.lossyScale.x ;
+				rend.endWidth = tracking.Attractor.transform.lossyScale.x ;
+				//rend.useWorldSpace = false;
+			}
+
+			List<Vector3> bufferPositions = new List<Vector3>();
+			List<Vector3> bufferVelocities = new List<Vector3>();
+			List<Vector3> bufferRelativePos = new List<Vector3>();
+			List<Vector3> bufferLastPositions = new List<Vector3>();
+			pathCalculating = true;
+			GetStartingPositions();
+			List<Vector3> path = new List<Vector3>();
+			int amt = Mathf.FloorToInt(runtime / timePerFrame);
+
+			for (int j = 0; j < amt; j++)
+			{
+				//Debug.Log(tracking.transform.position);
+				path.AddRange(SimulateForTime(timePerFrame, tracking));
+
+				
+				foreach (CelestialBody body in _bodies)
+				{
+					bufferPositions.Add(body.transform.position);
+					bufferVelocities.Add(body.Velocity);
+					bufferRelativePos.Add(body.RelativePosition);
+					bufferLastPositions.Add(body.LastPosition);
+				}
+
+				ResetToStartPos();
+				yield return null;
+				GetStartingPositions();
+				int i = 0;
+				foreach (CelestialBody body in _bodies)
+				{
+					body.transform.position = bufferPositions[i];
+					body.Velocity = bufferVelocities[i];
+					body.RelativePosition = bufferRelativePos[i];
+					body.LastPosition = bufferLastPositions[i];
+				
+					i++;
+				}
+
+				bufferPositions = new List<Vector3>();
+				bufferVelocities = new List<Vector3>();
+				bufferRelativePos = new List<Vector3>();
+				bufferLastPositions = new List<Vector3>();
+				Vector3[] array = path.Where((x, k) => k % 100 == 0).ToArray<Vector3>();
+				rend.positionCount = array.Length;
+				rend.SetPositions(array);
+				
+			}
+			ResetToStartPos();
+			pathCalculating = false;
+		}
+		void ResetToStartPos()
+		{
+			int i = 0;
+			foreach (CelestialBody body in _bodies)
+			{
+				body.transform.position = startPositions[i];
+				body.LastPosition = lastPositions[i];
+				body.Velocity = startVelocities[i];
+				body.RelativePosition = relativePos[i];
+				
+				i++;
+				//Debug.Log(body.transform.position);
+			}
+			//Debug.Log("reset");
+		}
 		/// <summary>
 		/// Simulate gravity on scene. 
 		/// Newtoninan motion and keplerian motion type
@@ -195,6 +346,8 @@ namespace SpaceGravity2D {
 				}
 
 			}
+
+
 			///=====================
 
 			///===================== Newtonian motion type:
@@ -215,8 +368,8 @@ namespace SpaceGravity2D {
 				switch (CalculationType) {
 				case NBodyCalculationType.Euler:
 					_bodies[i]._transform.position = _bodies[i].LastPosition;
-					_bodies[i].Velocity += CalcAccelerationEuler(_bodies[i].LastPosition) * deltaTime;
-					if (_bodies[i].CollidingCount > 0 && Mathf.Abs(TimeScale) > 1e-6f) {
+					_bodies[i].Velocity += CalcAccelerationEuler(_bodies[i].LastPosition) * deltaTime *_bodies[i].personalTimeScale;
+						if (_bodies[i].CollidingCount > 0 && Mathf.Abs(TimeScale) > 1e-6f) {
 						_bodies[i]._additionalVelocity += ( _bodies[i]._rigidbody2D.velocity / TimeScale - _bodies[i].Velocity ) / TimeScale;
 					}
 					if (_bodies[i]._additionalVelocity != Vector2.zero) {
@@ -260,15 +413,49 @@ namespace SpaceGravity2D {
 					_bodies[i].IsOnRailsMotion = true; //transit to keplerian motion at next frame
 				}
 			}
+
+
+
 			///=====================
 
 		}
 
-		public Vector2 CalcAcceleration(CelestialBody body) {
+		
+
+		void FakeSimulationStepFake(List<FakeBody> _bodies,float deltaTime)
+		{
+			//cache attractors to temporary list which improves performance in situations, when scene contains a lot of non-attracting low mass celestial bodies.
+
+			///===================== Newtonian motion type:
+			for (int i = 0; i < _bodies.Count; i++)
+			{
+				
+
+				switch (CalculationType)
+				{
+					case NBodyCalculationType.Euler:
+						_bodies[i].position = _bodies[i].LastPosition;
+						_bodies[i].Velocity += (Vector3)CalcAccelerationEuler(_bodies[i].LastPosition) * deltaTime * _bodies[i].personalTimeScale;
+						
+						_bodies[i].LastPosition = _bodies[i].LastPosition + (Vector3)(_bodies[i].Velocity * deltaTime);
+						_bodies[i].position = _bodies[i].LastPosition;
+						break;
+					
+				}
+				//_bodies[i].Velocity = _bodies[i].Velocity * TimeScale;
+				//_bodies[i].CalculateNewOrbitData();
+			
+			}
+		}
+
+		public Vector2 CalcAcceleration(CelestialBody body)
+		{
 			Vector2 forceAcceleration = Vector2.zero;
-			for (int i = 0; i < _attractorsCache.Count; i++) {
-				if (_attractorsCache[i] == body) {
-					continue;
+			for (int i = 0; i < _attractorsCache.Count; i++)
+			{
+				if (_attractorsCache[i] == body)
+				{
+				continue;
 				}
 				forceAcceleration += AccelerationByAttractionForce(body._transform.position, _attractorsCache[i]._transform.position, _attractorsCache[i].MG, MinAttractionRange, Mathf.Min(MaxAttractionRange, _attractorsCache[i].MaxAttractionRange));
 			}
@@ -476,4 +663,20 @@ namespace SpaceGravity2D {
 		}
 		#endregion
 	}
+}
+
+class FakeBody
+{
+	public Vector3 position, LastPosition, Velocity, _additionVelocity;
+	public float personalTimeScale;
+
+	public FakeBody(SpaceGravity2D.CelestialBody body)
+	{
+		position = body.transform.position;
+		LastPosition = body.LastPosition;
+		Velocity = body.Velocity;
+		_additionVelocity = body._additionalVelocity;
+		personalTimeScale = body.personalTimeScale;
+	}
+
 }

@@ -16,6 +16,7 @@ namespace SpaceGravity2D {
 
 		#region fields and properties
 
+		public float personalTimeScale = 1f;
 		/// <summary>
 		/// Cached Transform
 		/// </summary>

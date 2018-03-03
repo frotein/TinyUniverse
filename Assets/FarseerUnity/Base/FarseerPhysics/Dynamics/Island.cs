@@ -101,7 +101,7 @@ namespace FarseerPhysics.Dynamics
             float h = step.dt;
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.BeginSample("Int. Velocities");
+			UnityEngine.Profiling.Profiler.BeginSample("Int. Velocities");
 
             // Integrate velocities and apply damping. Initialize the body state.
             for (int i = 0; i < BodyCount; ++i)
@@ -141,10 +141,10 @@ namespace FarseerPhysics.Dynamics
             }
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.BeginSample("Init. VConstraints");
+			UnityEngine.Profiling.Profiler.BeginSample("Init. VConstraints");
 
             // Solver data
             SolverData solverData = new SolverData();
@@ -191,9 +191,9 @@ namespace FarseerPhysics.Dynamics
 #endif
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 			//GABS:PROFILER
-			UnityEngine.Profiler.BeginSample("Solve VConstraints");
+			UnityEngine.Profiling.Profiler.BeginSample("Solve VConstraints");
 
             // Solve velocity constraints.
             for (int i = 0; i < Settings.VelocityIterations; ++i)
@@ -225,28 +225,28 @@ namespace FarseerPhysics.Dynamics
 #endif
 				
 				//GABS:PROFILER
-				UnityEngine.Profiler.BeginSample("_contactSolver");
+				UnityEngine.Profiling.Profiler.BeginSample("_contactSolver");
 				
                 _contactSolver.SolveVelocityConstraints(); // HIGH
 				
 				//GABS:PROFILER
-				UnityEngine.Profiler.EndSample();
+				UnityEngine.Profiling.Profiler.EndSample();
             }
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.BeginSample("Store Impulses");
+			UnityEngine.Profiling.Profiler.BeginSample("Store Impulses");
 
             // Store impulses for warm starting.
             _contactSolver.StoreImpulses();
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.BeginSample("Integrate Positions");
+			UnityEngine.Profiling.Profiler.BeginSample("Integrate Positions");
 
             // Integrate positions
             for (int i = 0; i < BodyCount; ++i)
@@ -282,10 +282,10 @@ namespace FarseerPhysics.Dynamics
             }
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.BeginSample("Solve PConstraints");
+			UnityEngine.Profiling.Profiler.BeginSample("Solve PConstraints");
 
             // Solve position constraints
             bool positionSolved = false;
@@ -333,7 +333,7 @@ namespace FarseerPhysics.Dynamics
 #endif
 			
 			//GABS:PROFILER
-			UnityEngine.Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 
             // Copy state buffers back to the bodies
             for (int i = 0; i < BodyCount; ++i)
